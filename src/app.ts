@@ -1,6 +1,23 @@
+enum projectStatus {
+  Finished , Active
+}
+
+
+class Project {
+  constructor (
+    public id : string ,
+    public title :string ,
+    public description : string ,
+    public manday : number ,
+    public status : projectStatus
+  ){}
+}
+
+type listner = (item:Project[]) => void ;
+
 class Projectstatus {
-  private listner :  any  = [];
-  private project : any [] = [];
+  private listner :  listner []  = [];
+  private project : Project [] = [];
   private static instance = new Projectstatus;
 
   private constructor (){
@@ -13,18 +30,19 @@ class Projectstatus {
     return this.instance;
   }
 
-  addlistener (listnerFn : Function ){
+  addlistener (listnerFn : listner ){
     this.listner.push(listnerFn);
   }
 
 
   addProjects(title : string , descriptor : string , manday : number ){
-    const newProject = {
-      id  : Math.random().toString(),
-      title : title,
-      descriptor : descriptor,
-      manday : manday,
-    }
+    const newProject = new Project (
+      Math.random.toString(),
+      title,
+      descriptor,
+      manday,
+      projectStatus.Active
+    );
     this.project.push(newProject);
     for(const listenrFn of this.listner ){
       listenrFn(this.project.slice())
@@ -96,7 +114,7 @@ class ProjectList {
   templateElement: HTMLTemplateElement;
   hostElement: HTMLDivElement;
   element: HTMLElement;
-  assinedProjects : any[] ;
+  assinedProjects : Project[] ;
   constructor(private type : 'active' | 'finished') {
     this.templateElement = document.getElementById(
       'project-list',
@@ -109,7 +127,7 @@ class ProjectList {
     );
     this.element = importedNode.firstElementChild as HTMLElement;
     this.element.id = `${this.type}-projects`
-    projectstatus.addlistener((projects : any[]) => {
+    projectstatus.addlistener((projects : Project[]) => {
       this.assinedProjects = projects ;
       this.renderProjects();
     })
@@ -126,7 +144,7 @@ private renderProjects(){
   const ListEl = document.getElementById( `${this.type}-projects-list`)! as HTMLUListElement
   for (const Prjitem of this.assinedProjects){
   const Listitem =document.createElement('li');
-  Listitem.textContent = Prjitem.titile;
+  Listitem.textContent = Prjitem.title;
   ListEl.appendChild(Listitem);
   }
 }

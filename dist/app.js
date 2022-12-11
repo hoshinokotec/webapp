@@ -5,6 +5,20 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var projectStatus;
+(function (projectStatus) {
+    projectStatus[projectStatus["Finished"] = 0] = "Finished";
+    projectStatus[projectStatus["Active"] = 1] = "Active";
+})(projectStatus || (projectStatus = {}));
+class Project {
+    constructor(id, title, description, manday, status) {
+        this.id = id;
+        this.title = title;
+        this.description = description;
+        this.manday = manday;
+        this.status = status;
+    }
+}
 class Projectstatus {
     constructor() {
         this.listner = [];
@@ -21,12 +35,7 @@ class Projectstatus {
         this.listner.push(listnerFn);
     }
     addProjects(title, descriptor, manday) {
-        const newProject = {
-            id: Math.random().toString(),
-            title: title,
-            descriptor: descriptor,
-            manday: manday,
-        };
+        const newProject = new Project(Math.random.toString(), title, descriptor, manday, projectStatus.Active);
         this.project.push(newProject);
         for (const listenrFn of this.listner) {
             listenrFn(this.project.slice());
@@ -92,7 +101,7 @@ class ProjectList {
         const ListEl = document.getElementById(`${this.type}-projects-list`);
         for (const Prjitem of this.assinedProjects) {
             const Listitem = document.createElement('li');
-            Listitem.textContent = Prjitem.titile;
+            Listitem.textContent = Prjitem.title;
             ListEl.appendChild(Listitem);
         }
     }
