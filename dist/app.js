@@ -42,6 +42,16 @@ class Projectstatus extends Status {
     addProjects(title, descriptor, manday) {
         const newProject = new Project(Math.random.toString(), title, descriptor, manday, projectStatus.Active);
         this.project.push(newProject);
+        this.UpdateListenrs();
+    }
+    moveProjcts(projectid, newstatus) {
+        const project = this.project.find(prj => prj.id === projectid);
+        if (project && project.status !== newstatus) {
+            project.status = newstatus;
+            this.UpdateListenrs();
+        }
+    }
+    UpdateListenrs() {
         for (const listenrFn of this.listner) {
             listenrFn(this.project.slice());
         }
@@ -96,7 +106,7 @@ class Component {
         this.attach(insertAtStart);
     }
     attach(insertBeginning) {
-        this.hostElement.insertAdjacentElement(insertBeginning ? 'afterbegin' : 'beforeend', this.element);
+        this.hostElement.insertAdjacentElement(insertBeginning ? "afterbegin" : "beforeend", this.element);
     }
 }
 class ProjectItem extends Component {
@@ -108,29 +118,60 @@ class ProjectItem extends Component {
     }
     get manday() {
         if (this.project.manday < 20) {
-            return this.project.manday.toString() + '人日';
+            return this.project.manday.toString() + "人日";
         }
         else {
-            return (this.project.manday / 20).toString() + '人月';
+            return (this.project.manday / 20).toString() + "人月";
         }
     }
+    drugStartHandler(event) {
+        event.dataTransfer.setData('text/plain', this.project.id);
+        event.dataTransfer.effectAllowed = 'move';
+    }
+    drugEndHundler(_) {
+        console.log('ドラッグ完了');
+    }
+    ;
     configure() {
+        this.element.addEventListener('dragstart', this.drugStartHandler);
+        this.element.addEventListener('dragend', this.drugEndHundler);
     }
     rendercontent() {
-        this.element.querySelector('h2').textContent = this.project.title;
-        this.element.querySelector('h3').textContent = this.manday;
-        this.element.querySelector('p').textContent = this.project.description;
+        this.element.querySelector("h2").textContent = this.project.title;
+        this.element.querySelector("h3").textContent = this.manday;
+        this.element.querySelector("p").textContent = this.project.description;
     }
 }
+__decorate([
+    autobind
+], ProjectItem.prototype, "drugStartHandler", null);
 class ProjectList extends Component {
     constructor(type) {
-        super('project-list', 'app', false, `${type}-projects`);
+        super("project-list", "app", false, `${type}-projects`);
         this.type = type;
         this.assinedProjects = [];
         this.configure();
         this.rendercontent();
     }
+    dragOverHundler(event) {
+        if (event.dataTransfer && event.dataTransfer.types[0] === 'text/plain') {
+            event.preventDefault();
+            const EventUl = this.element.querySelector('ul');
+            EventUl.classList.add('droppable');
+        }
+    }
+    drophundler(event) {
+        const PrID = (event.dataTransfer.getData('text/plain'));
+        projectstatus.moveProjcts(PrID, this.type === 'active' ? projectStatus.Active : projectStatus.Finished);
+    }
+    dragLeaveHundler(_evnent) {
+        const EventUl = this.element.querySelector('ul');
+        EventUl.classList.remove('droppable');
+    }
     configure() {
+        this.element.addEventListener('dragover', this.dragOverHundler);
+        this.element.addEventListener('drop', this.drophundler);
+        this.element.addEventListener('dragleave', this.dragLeaveHundler);
         projectstatus.addListener((projects) => {
             const relevantProjects = projects.filter((prj) => {
                 if (this.type === "active") {
@@ -156,9 +197,18 @@ class ProjectList extends Component {
         }
     }
 }
+__decorate([
+    autobind
+], ProjectList.prototype, "dragOverHundler", null);
+__decorate([
+    autobind
+], ProjectList.prototype, "drophundler", null);
+__decorate([
+    autobind
+], ProjectList.prototype, "dragLeaveHundler", null);
 class ProjectInput extends Component {
     constructor() {
-        super('project-input', 'app', false, 'user-input');
+        super("project-input", "app", false, "user-input");
         this.titleInputElement = this.element.querySelector("#title");
         this.descriptionInputElement = this.element.querySelector("#description");
         this.mandayInputElement = this.element.querySelector("#manday");
