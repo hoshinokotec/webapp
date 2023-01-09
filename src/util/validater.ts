@@ -1,4 +1,3 @@
-namespace App {
 // validate interface
 export interface validate {
   value: string | number;
@@ -41,5 +40,4 @@ export function validate(validatableInput: validate) {
     isvalid = isvalid && validatableInput.value <= validatableInput.max;
   }
   return isvalid;
-}
 }

@@ -1,5 +1,4 @@
-namespace App{
-  export enum projectStatus {
+export enum projectStatus {
   Finished,
   Active,
 }
@@ -12,5 +11,4 @@ export class Project {
     public manday: number,
     public status: projectStatus
   ) {}
-}
 }

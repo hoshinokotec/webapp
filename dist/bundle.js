@@ -1,73 +1,51 @@
-"use strict";
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
-var App;
-(function (App) {
-    let projectStatus;
-    (function (projectStatus) {
-        projectStatus[projectStatus["Finished"] = 0] = "Finished";
-        projectStatus[projectStatus["Active"] = 1] = "Active";
-    })(projectStatus = App.projectStatus || (App.projectStatus = {}));
-    class Project {
-        constructor(id, title, description, manday, status) {
-            this.id = id;
-            this.title = title;
-            this.description = description;
-            this.manday = manday;
-            this.status = status;
+define("component/component", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Component = void 0;
+    class Component {
+        constructor(templateid, hostElementId, insertAtStart, newElementId) {
+            this.templateElement = document.getElementById(templateid);
+            this.hostElement = document.getElementById(hostElementId);
+            const importedNode = document.importNode(this.templateElement.content, true);
+            this.element = importedNode.firstElementChild;
+            if (newElementId) {
+                this.element.id = newElementId;
+            }
+            this.attach(insertAtStart);
+        }
+        attach(insertBeginning) {
+            this.hostElement.insertAdjacentElement(insertBeginning ? "afterbegin" : "beforeend", this.element);
         }
     }
-    App.Project = Project;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class Status {
-        constructor() {
-            this.listner = [];
-        }
-        addListener(listnerFn) {
-            this.listner.push(listnerFn);
-        }
+    exports.Component = Component;
+});
+define("decorater/autobind", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.autobind = void 0;
+    function autobind(_, _2, descriptor) {
+        const originalMethod = descriptor.value;
+        const adjDescriptor = {
+            configurable: true,
+            get() {
+                const boundFn = originalMethod.bind(this);
+                return boundFn;
+            },
+        };
+        return adjDescriptor;
     }
-    class Projectstatus extends Status {
-        constructor() {
-            super();
-            this.project = [];
-        }
-        static getInstance() {
-            if (this.instance) {
-                return this.instance;
-            }
-            this.instance = new Projectstatus();
-            return this.instance;
-        }
-        addProjects(title, descriptor, manday) {
-            const newProject = new App.Project(Math.random.toString(), title, descriptor, manday, App.projectStatus.Active);
-            this.project.push(newProject);
-            this.UpdateListenrs();
-        }
-        moveProjcts(projectid, newstatus) {
-            const project = this.project.find(prj => prj.id === projectid);
-            if (project && project.status !== newstatus) {
-                project.status = newstatus;
-                this.UpdateListenrs();
-            }
-        }
-        UpdateListenrs() {
-            for (const listenrFn of this.listner) {
-                listenrFn(this.project.slice());
-            }
-        }
-    }
-    App.Projectstatus = Projectstatus;
-    App.projectstatus = Projectstatus.getInstance();
-})(App || (App = {}));
-var App;
-(function (App) {
+    exports.autobind = autobind;
+});
+define("util/validater", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.validate = void 0;
     function validate(validatableInput) {
         let isvalid = true;
         if (validatableInput.required) {
@@ -93,45 +71,147 @@ var App;
         }
         return isvalid;
     }
-    App.validate = validate;
-})(App || (App = {}));
-var App;
-(function (App) {
-    function autobind(_, _2, descriptor) {
-        const originalMethod = descriptor.value;
-        const adjDescriptor = {
-            configurable: true,
-            get() {
-                const boundFn = originalMethod.bind(this);
-                return boundFn;
-            },
-        };
-        return adjDescriptor;
+    exports.validate = validate;
+});
+define("models/project", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.Project = exports.projectStatus = void 0;
+    var projectStatus;
+    (function (projectStatus) {
+        projectStatus[projectStatus["Finished"] = 0] = "Finished";
+        projectStatus[projectStatus["Active"] = 1] = "Active";
+    })(projectStatus = exports.projectStatus || (exports.projectStatus = {}));
+    class Project {
+        constructor(id, title, description, manday, status) {
+            this.id = id;
+            this.title = title;
+            this.description = description;
+            this.manday = manday;
+            this.status = status;
+        }
     }
-    App.autobind = autobind;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class Component {
-        constructor(templateid, hostElementId, insertAtStart, newElementId) {
-            this.templateElement = document.getElementById(templateid);
-            this.hostElement = document.getElementById(hostElementId);
-            const importedNode = document.importNode(this.templateElement.content, true);
-            this.element = importedNode.firstElementChild;
-            if (newElementId) {
-                this.element.id = newElementId;
+    exports.Project = Project;
+});
+define("state/project-state", ["require", "exports", "models/project"], function (require, exports, project_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.projectstatus = exports.Projectstatus = void 0;
+    class Status {
+        constructor() {
+            this.listner = [];
+        }
+        addListener(listnerFn) {
+            this.listner.push(listnerFn);
+        }
+    }
+    class Projectstatus extends Status {
+        constructor() {
+            super();
+            this.project = [];
+        }
+        static getInstance() {
+            if (this.instance) {
+                return this.instance;
             }
-            this.attach(insertAtStart);
+            this.instance = new Projectstatus();
+            return this.instance;
         }
-        attach(insertBeginning) {
-            this.hostElement.insertAdjacentElement(insertBeginning ? "afterbegin" : "beforeend", this.element);
+        addProjects(title, descriptor, manday) {
+            const newProject = new project_1.Project(Math.random.toString(), title, descriptor, manday, project_1.projectStatus.Active);
+            this.project.push(newProject);
+            this.UpdateListenrs();
+        }
+        moveProjcts(projectid, newstatus) {
+            const project = this.project.find(prj => prj.id === projectid);
+            if (project && project.status !== newstatus) {
+                project.status = newstatus;
+                this.UpdateListenrs();
+            }
+        }
+        UpdateListenrs() {
+            for (const listenrFn of this.listner) {
+                listenrFn(this.project.slice());
+            }
         }
     }
-    App.Component = Component;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class ProjectItem extends App.Component {
+    exports.Projectstatus = Projectstatus;
+    exports.projectstatus = Projectstatus.getInstance();
+});
+define("component/project-input", ["require", "exports", "component/component", "decorater/autobind", "util/validater", "state/project-state"], function (require, exports, component_js_1, autobind_js_1, validater_js_1, project_state_js_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ProjectInput = void 0;
+    class ProjectInput extends component_js_1.Component {
+        constructor() {
+            super("project-input", "app", false, "user-input");
+            this.titleInputElement = this.element.querySelector("#title");
+            this.descriptionInputElement = this.element.querySelector("#description");
+            this.mandayInputElement = this.element.querySelector("#manday");
+            this.configure();
+        }
+        configure() {
+            this.element.addEventListener("submit", this.submitHandler);
+        }
+        rendercontent() { }
+        getUserIpunt() {
+            const inputtitle = this.titleInputElement.value;
+            const inputdescriptor = this.descriptionInputElement.value;
+            const inputmanday = this.mandayInputElement.value;
+            const titletvalidate = {
+                value: inputtitle,
+                required: true,
+            };
+            const descriptvalidate = {
+                value: inputdescriptor,
+                required: true,
+                minlength: 5,
+            };
+            const mandayvalidate = {
+                value: +inputmanday,
+                required: true,
+                min: 1,
+                max: 1000,
+            };
+            if (!(0, validater_js_1.validate)(titletvalidate) ||
+                !(0, validater_js_1.validate)(descriptvalidate) ||
+                !(0, validater_js_1.validate)(mandayvalidate)) {
+                alert("入力値は正しくありません。再度入力して下さい。");
+                return;
+            }
+            else {
+                return [inputtitle, inputdescriptor, +inputmanday];
+            }
+        }
+        inputclear() {
+            this.titleInputElement.value = "";
+            this.descriptionInputElement.value = "";
+            this.mandayInputElement.value = "";
+        }
+        submitHandler(event) {
+            event.preventDefault();
+            const userinput = this.getUserIpunt();
+            if (Array.isArray(userinput)) {
+                const [titile, desicript, man] = userinput;
+                project_state_js_1.projectstatus.addProjects(titile, desicript, man);
+                this.inputclear();
+            }
+        }
+    }
+    __decorate([
+        autobind_js_1.autobind
+    ], ProjectInput.prototype, "submitHandler", null);
+    exports.ProjectInput = ProjectInput;
+});
+define("models/drag-drop-interfaces", ["require", "exports"], function (require, exports) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+});
+define("component/project-item", ["require", "exports", "component/component", "decorater/autobind"], function (require, exports, component_js_2, autobind_js_2) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ProjectItem = void 0;
+    class ProjectItem extends component_js_2.Component {
         constructor(hostid, project) {
             super("single-project", hostid, true, project.id);
             this.project = project;
@@ -165,76 +245,15 @@ var App;
         }
     }
     __decorate([
-        App.autobind
+        autobind_js_2.autobind
     ], ProjectItem.prototype, "drugStartHandler", null);
-    App.ProjectItem = ProjectItem;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class ProjectInput extends App.Component {
-        constructor() {
-            super("project-input", "app", false, "user-input");
-            this.titleInputElement = this.element.querySelector("#title");
-            this.descriptionInputElement = this.element.querySelector("#description");
-            this.mandayInputElement = this.element.querySelector("#manday");
-            this.configure();
-        }
-        configure() {
-            this.element.addEventListener("submit", this.submitHandler);
-        }
-        rendercontent() { }
-        getUserIpunt() {
-            const inputtitle = this.titleInputElement.value;
-            const inputdescriptor = this.descriptionInputElement.value;
-            const inputmanday = this.mandayInputElement.value;
-            const titletvalidate = {
-                value: inputtitle,
-                required: true,
-            };
-            const descriptvalidate = {
-                value: inputdescriptor,
-                required: true,
-                minlength: 5,
-            };
-            const mandayvalidate = {
-                value: +inputmanday,
-                required: true,
-                min: 1,
-                max: 1000,
-            };
-            if (!App.validate(titletvalidate) ||
-                !App.validate(descriptvalidate) ||
-                !App.validate(mandayvalidate)) {
-                alert("入力値は正しくありません。再度入力して下さい。");
-                return;
-            }
-            else {
-                return [inputtitle, inputdescriptor, +inputmanday];
-            }
-        }
-        inputclear() {
-            this.titleInputElement.value = "";
-            this.descriptionInputElement.value = "";
-            this.mandayInputElement.value = "";
-        }
-        submitHandler(event) {
-            event.preventDefault();
-            const userinput = this.getUserIpunt();
-            if (Array.isArray(userinput)) {
-                const [titile, desicript, man] = userinput;
-                App.projectstatus.addProjects(titile, desicript, man);
-                this.inputclear();
-            }
-        }
-    }
-    __decorate([
-        App.autobind
-    ], ProjectInput.prototype, "submitHandler", null);
-    App.ProjectInput = ProjectInput;
-})(App || (App = {}));
-var App;
-(function (App) {
-    class ProjectList extends App.Component {
+    exports.ProjectItem = ProjectItem;
+});
+define("component/project-list", ["require", "exports", "component/component", "decorater/autobind", "models/project", "state/project-state", "component/project-item"], function (require, exports, component_js_3, autobind_js_3, project_js_1, project_state_js_2, project_item_js_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    exports.ProjectList = void 0;
+    class ProjectList extends component_js_3.Component {
         constructor(type) {
             super("project-list", "app", false, `${type}-projects`);
             this.type = type;
@@ -251,7 +270,7 @@ var App;
         }
         drophundler(event) {
             const PrID = (event.dataTransfer.getData('text/plain'));
-            App.projectstatus.moveProjcts(PrID, this.type === 'active' ? App.projectStatus.Active : App.projectStatus.Finished);
+            project_state_js_2.projectstatus.moveProjcts(PrID, this.type === 'active' ? project_js_1.projectStatus.Active : project_js_1.projectStatus.Finished);
         }
         dragLeaveHundler(_evnent) {
             const EventUl = this.element.querySelector('ul');
@@ -261,12 +280,12 @@ var App;
             this.element.addEventListener('dragover', this.dragOverHundler);
             this.element.addEventListener('drop', this.drophundler);
             this.element.addEventListener('dragleave', this.dragLeaveHundler);
-            App.projectstatus.addListener((projects) => {
+            project_state_js_2.projectstatus.addListener((projects) => {
                 const relevantProjects = projects.filter((prj) => {
                     if (this.type === "active") {
-                        return prj.status === App.projectStatus.Active;
+                        return prj.status === project_js_1.projectStatus.Active;
                     }
-                    return prj.status === App.projectStatus.Finished;
+                    return prj.status === project_js_1.projectStatus.Finished;
                 });
                 this.assinedProjects = relevantProjects;
                 this.renderProjects();
@@ -282,25 +301,26 @@ var App;
             const ListEl = document.getElementById(`${this.type}-projects-list`);
             ListEl.innerHTML = "";
             for (const Prjitem of this.assinedProjects) {
-                new App.ProjectItem(ListEl.id, Prjitem);
+                new project_item_js_1.ProjectItem(ListEl.id, Prjitem);
             }
         }
     }
     __decorate([
-        App.autobind
+        autobind_js_3.autobind
     ], ProjectList.prototype, "dragOverHundler", null);
     __decorate([
-        App.autobind
+        autobind_js_3.autobind
     ], ProjectList.prototype, "drophundler", null);
     __decorate([
-        App.autobind
+        autobind_js_3.autobind
     ], ProjectList.prototype, "dragLeaveHundler", null);
-    App.ProjectList = ProjectList;
-})(App || (App = {}));
-var App;
-(function (App) {
-    new App.ProjectInput();
-    new App.ProjectList("active");
-    new App.ProjectList("finished");
-})(App || (App = {}));
+    exports.ProjectList = ProjectList;
+});
+define("app", ["require", "exports", "component/project-input", "component/project-list"], function (require, exports, project_input_js_1, project_list_js_1) {
+    "use strict";
+    Object.defineProperty(exports, "__esModule", { value: true });
+    new project_input_js_1.ProjectInput();
+    new project_list_js_1.ProjectList("active");
+    new project_list_js_1.ProjectList("finished");
+});
 //# sourceMappingURL=bundle.js.map

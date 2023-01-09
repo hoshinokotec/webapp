@@ -1,5 +1,7 @@
-/// <reference path="component.ts" />
-namespace App{
+import {Component} from '../component/component.js'
+import {autobind} from '../decorater/autobind.js'
+import * as Validate from '../util/validater.js'
+import {projectstatus} from '../state/project-state.js'
 // ProjectInput Class
 export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
   titleInputElement: HTMLInputElement;
@@ -32,25 +34,25 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
     const inputtitle = this.titleInputElement.value;
     const inputdescriptor = this.descriptionInputElement.value;
     const inputmanday = this.mandayInputElement.value;
-    const titletvalidate: validate = {
+    const titletvalidate: Validate.validate = {
       value: inputtitle,
       required: true,
     };
-    const descriptvalidate: validate = {
+    const descriptvalidate: Validate.validate = {
       value: inputdescriptor,
       required: true,
       minlength: 5,
     };
-    const mandayvalidate: validate = {
+    const mandayvalidate: Validate.validate = {
       value: +inputmanday,
       required: true,
       min: 1,
       max: 1000,
     };
     if (
-      !validate(titletvalidate) ||
-      !validate(descriptvalidate) ||
-      !validate(mandayvalidate)
+      !Validate.validate(titletvalidate) ||
+      !Validate.validate(descriptvalidate) ||
+      !Validate.validate(mandayvalidate)
     ) {
       alert("入力値は正しくありません。再度入力して下さい。");
       return;
@@ -75,5 +77,4 @@ export class ProjectInput extends Component<HTMLDivElement, HTMLFormElement> {
       this.inputclear();
     }
   }
-}
 }

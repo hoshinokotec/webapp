@@ -1,4 +1,4 @@
-namespace App{
+
   export interface Dragable {
     drugStartHandler(event: DragEvent): void;
     drugEndHundler(event: DragEvent): void;
@@ -9,4 +9,3 @@ namespace App{
     drophundler(event: DragEvent): void;
     dragLeaveHundler(event: DragEvent): void;
   }
-}

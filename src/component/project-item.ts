@@ -1,5 +1,7 @@
-/// <reference path="component.ts" />
-namespace App{
+import {Component} from '../component/component.js'
+import {autobind} from '../decorater/autobind.js'
+import {Dragable} from '../models/drag-drop-interfaces.js'
+import {Project} from '../models/project.js'
 //ProjectItem
 
 export class ProjectItem
@@ -40,5 +42,4 @@ export class ProjectItem
     this.element.querySelector("h3")!.textContent = this.manday;
     this.element.querySelector("p")!.textContent = this.project.description;
   }
-}
 }

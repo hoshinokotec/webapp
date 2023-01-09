@@ -1,5 +1,10 @@
-/// <reference path="component.ts" />
-namespace App {
+import {Dragtarget} from '../models/drag-drop-interfaces.js'
+import {Component} from '../component/component.js'
+import {autobind} from '../decorater/autobind.js'
+import {Project , projectStatus} from '../models/project.js'
+import {projectstatus} from '../state/project-state.js'
+import {ProjectItem} from './project-item.js'
+
 //ProjectList Class
 export class ProjectList extends Component<HTMLDivElement, HTMLElement> implements Dragtarget{
   assinedProjects: Project[];
@@ -69,5 +74,4 @@ export class ProjectList extends Component<HTMLDivElement, HTMLElement> implemen
       new ProjectItem(ListEl.id, Prjitem);
     }
   }
-}
 }

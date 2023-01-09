@@ -1,4 +1,4 @@
-namespace App{
+import{Project , projectStatus} from  '../models/project.js'
 
 type listner<T> = (item: T[]) => void;
 
@@ -52,4 +52,3 @@ export class Projectstatus extends Status<Project> {
 
 export const projectstatus = Projectstatus.getInstance();
 
-}
